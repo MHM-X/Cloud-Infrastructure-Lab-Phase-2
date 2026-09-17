@@ -526,4 +526,4 @@ Nginx
 
 The Load Balancer distributes traffic between the two containerized Flask servers, while both application servers communicate with the containerized PostgreSQL database.
 
-This completes the Dockerization phase and prepares the infrastructure for the next phase: automation using GitHub Actions.
+>This completes the Dockerization phase and prepares the infrastructure for the next phase: automation using GitHub Actions.
