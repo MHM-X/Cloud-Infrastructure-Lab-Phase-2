@@ -8,7 +8,7 @@ The goal is to transform the manually configured services into containerized ser
 
 ## Architecture
 
-![Architecture2](architecture.png)
+![Architecture](architecture.png)
 
 ---
 
@@ -489,7 +489,7 @@ sudo docker volume ls
 
 ## Architecture
 
-![Architecture](architecture2.png)
+![Architecture2](architecture2.png)
 
 ---
 
