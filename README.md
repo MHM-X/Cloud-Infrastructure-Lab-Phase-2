@@ -1161,8 +1161,155 @@ mahmoudeng/white-backend:a81f32c9e7...
 ```
 
 ---
+# 28. PostgreSQL Docker Compose
 
-# 28. Phase 2 Updated Outcome
+The PostgreSQL server also uses Docker Compose.
+
+PostgreSQL runs on:
+
+192.168.56.5
+
+Its Compose project contains the PostgreSQL service only.
+
+PostgreSQL compose.yaml
+services:
+
+  postgres:
+    image: postgres:18
+    container_name: white-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+Environment file
+
+The .env file contains:
+
+POSTGRES_USER=white_app
+POSTGRES_PASSWORD=YOUR_PASSWORD
+POSTGRES_DB=white_db
+
+The database is published on the VM's port 5432:
+
+192.168.56.5:5432
+
+The Flask servers connect to it using:
+
+192.168.56.5:5432
+PostgreSQL persistence
+
+The named volume:
+
+volumes:
+  - postgres_data:/var/lib/postgresql
+
+allows PostgreSQL data to persist independently from the lifecycle of the container.
+
+The init directory is mounted to:
+
+/docker-entrypoint-initdb.d
+
+PostgreSQL's official image can execute initialization scripts from this directory when initializing a new database data directory.
+
+For example:
+
+init/
+├── schema.sql
+└── ...
+
+These initialization scripts are intended for the initial database setup. They are not automatically re-executed every time the container starts if the database has already been initialized.
+
+Start PostgreSQL
+
+From the PostgreSQL server:
+
+sudo docker compose up -d
+
+Check the service:
+
+sudo docker compose ps
+
+Check logs:
+
+sudo docker compose logs postgres
+
+The database should eventually report that it is ready to accept connections.
+
+# 29. Load Balancer Docker Compose
+
+The Load Balancer VM is:
+
+192.168.56.8
+
+It runs its own Docker Compose project containing the Nginx load balancer.
+
+The important point is that the Docker network on the Load Balancer VM is separate from the Docker networks on the Flask VMs.
+
+Therefore, the Load Balancer communicates with the Flask servers through their VM IP addresses:
+
+192.168.56.6:80
+192.168.56.7:80
+Load Balancer compose.yaml
+services:
+
+  load-balancer:
+    image: mahmoudeng/white-load-balancer:v1
+    container_name: white-load-balancer
+    restart: unless-stopped
+    ports:
+      - "80:80"
+
+The Load Balancer exposes:
+
+192.168.56.8:80
+Load Balancer Nginx configuration
+upstream white_backend {
+    server 192.168.56.6:80;
+    server 192.168.56.7:80;
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://white_backend;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+Nginx uses round-robin load balancing by default.
+
+Requests are distributed between:
+
+192.168.56.6:80
+192.168.56.7:80
+Start the Load Balancer
+
+From the Load Balancer VM:
+
+sudo docker compose up -d
+
+Check the service:
+
+sudo docker compose ps
+
+Check the logs:
+
+sudo docker compose logs load-balancer
+
+---
+# 30. Phase 2 Updated Outcome
 
 The infrastructure has now evolved from manually running individual Docker containers to a multi-container architecture managed by Docker Compose.
 
