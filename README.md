@@ -8,7 +8,7 @@ The goal is to transform the manually configured services into containerized ser
 
 ## Architecture
 
-![Architecture](architecture.png)
+![Architecture2](architecture.png)
 
 ---
 
