@@ -485,6 +485,14 @@ sudo docker volume ls
 
 # Part 2 — Docker Compose & Internal Reverse Proxy
 
+---
+
+## Architecture
+
+![Architecture](architecture2.png)
+
+---
+
 This part extends the previous Dockerization phase by improving the container architecture.
 
 Instead of running containers manually with `docker run`, Docker Compose is now used to manage the services on each server.
